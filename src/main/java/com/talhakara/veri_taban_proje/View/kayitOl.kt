@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.talhakara.veri_taban_proje.ViewModel.GirisYapViewModel
 import com.talhakara.veri_taban_proje.ViewModel.KayitOlViewModel
 
 
@@ -41,8 +42,6 @@ fun kayitOl(navController: NavController) {
     var kullaniciAdi by remember { mutableStateOf("") }
     val context = LocalContext.current // Bu satır, compose içindeki bağlamı alır. Gerekirse uygun şekilde ayarlayın.
     val KayitOlViewModel: KayitOlViewModel = viewModel()
-
-
 
     Column(
         modifier = Modifier
@@ -87,10 +86,7 @@ fun kayitOl(navController: NavController) {
                 if (password.isEmpty() || kullaniciAdi.isEmpty()) {
                     Toast.makeText(context, "Zorunlu boşlukları doldurun", Toast.LENGTH_SHORT).show()
                 } else {
-
-                   KayitOlViewModel.kaydetSQL(kullaniciAdi = kullaniciAdi,password=password)
-
-
+                   KayitOlViewModel.kaydetSQL(kullaniciAdi, password,navController)
                 }
             },
             modifier = Modifier

@@ -1,76 +1,69 @@
 package com.talhakara.veri_taban_proje.ViewModel
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.sql.Connection
 import java.sql.DriverManager
 
-class GirisYapViewModel {
+class GirisYapViewModel : ViewModel() {
 
+    fun girisSQL(kullaniciAdi: String, password: String,navController: NavController,context: Context) {
+        var connection: Connection? = null
 
-    fun girisYap(kullaniciAdi: String, sifre: String): Boolean {
-        try {
-            val jdbcUrl = "jdbc:postgresql://localhost:5432/postgres"
-            val dbUser = "postgres"
-            val dbpassword = "1905"
-
-            var connection: Connection? = null
-
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                connection = DriverManager.getConnection(jdbcUrl, dbUser, dbpassword)
-                println("Bağlantı başarılı")
+                connection = DriverManager.getConnection(
+                    "jdbc:postgresql://192.168.43.185:5432/postgres",
+                    "postgres",
+                    "1905"
+                )
+                println("Bağlantı ")
 
+                val selectStatement = connection!!.prepareStatement(
+                    "SELECT * FROM dinleyici WHERE dinleyici_ad = ? AND sifre = ?"
+                )
+                selectStatement.setString(1, kullaniciAdi)
+                selectStatement.setString(2, password)
+                val resultSet = selectStatement.executeQuery()
 
-                // Kullanıcı adını kontrol et
-                val userExists = kullaniciAdiVarMi(connection, kullaniciAdi)
-
-                if (userExists) {
-                    // SQL sorgusunu parametrelerle oluştur
-                    val sql = "SELECT * FROM dinleyici WHERE dinleyici_ad = ? AND sifre = ?"
-                    val preparedStatement = connection.prepareStatement(sql)
-                    preparedStatement.setString(1, kullaniciAdi)
-                    preparedStatement.setString(2, sifre)
-
-                    val resultSet = preparedStatement.executeQuery()
-
-                    val sifreEslesiyor = resultSet.next()
-
-                    resultSet.close()
-                    preparedStatement.close()
-
-                    return sifreEslesiyor
+                if (resultSet.next()) {
+                    // Kullanıcı bulundu
+                    // UI thread'inde işlem yapabilirsiniz
+                    withContext(Dispatchers.Main) {
+                        navController.navigate("anaSayfa")
+                    }
                 } else {
-                    println("Kullanıcı adı bulunamadı.")
+                    // Kullanıcı bulunamadı
+                    // UI thread'inde işlem yapabilirsiniz
+                    withContext(Dispatchers.Main) {
+
+                        showToast(context,"hatali giriş")
+                    }
                 }
 
+                selectStatement.close()
             } catch (e: Exception) {
                 e.printStackTrace()
+                Log.e("GirisViewModel", "Veritabanı hatası: ${e.message}", e)
+
+                // Hatayı kullanıcıya bildirebilirsiniz
+                withContext(Dispatchers.Main) {
+                    // Toast veya Alert Dialog gösterebilirsiniz
+                }
             } finally {
                 connection?.close()
             }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-
-        return false
     }
 
-    fun kullaniciAdiVarMi(connection: Connection, kullaniciAdi: String): Boolean {
-        val sql = "SELECT COUNT(*) FROM dinleyici WHERE dinleyici_ad = ?"
-        val preparedStatement = connection.prepareStatement(sql)
-        preparedStatement.setString(1, kullaniciAdi)
-        val resultSet = preparedStatement.executeQuery()
-
-        resultSet.next()
-        val kullaniciSayisi = resultSet.getInt(1)
-
-        resultSet.close()
-        preparedStatement.close()
-
-        return kullaniciSayisi > 0
+    private fun showToast(context: Context, message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
-
-
-
 }
-
-

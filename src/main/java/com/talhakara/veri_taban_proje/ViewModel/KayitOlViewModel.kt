@@ -3,6 +3,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -13,17 +14,17 @@ import java.sql.DriverManager
 
 class KayitOlViewModel : ViewModel() {
 
-    fun kaydetSQL(kullaniciAdi: String, password: String) {
+    fun kaydetSQL(kullaniciAdi: String, password: String,navController: NavController) {
         var connection: Connection? = null
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 connection = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost:5432/postgres",
+                    "jdbc:postgresql://192.168.43.185:5432/postgres",
                     "postgres",
                     "1905"
                 )
-                println("Bağlantı başarılı")
+                println("Bağlantı ")
 
                 val insertStatement = connection!!.prepareStatement(
                     "INSERT INTO dinleyici (dinleyici_ad, sifre) VALUES (?, ?)"
@@ -35,11 +36,14 @@ class KayitOlViewModel : ViewModel() {
 
                 // Veritabanı işlemi başarılı, UI thread'inde işlem yapabilirsiniz
                 withContext(Dispatchers.Main) {
-                    // Kullanıcıya başarılı olduğunu bildirebilirsiniz
+                    navController.navigate("anaSayfa")
+                    println("anasayfa gitti")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.e("KayitOlViewModel", "Veritabanı hatası: ${e.message}", e)
+                println("anasayfa gitti-")
+                println("anasayfa gitti-")
 
                 // Hatayı kullanıcıya bildirebilirsiniz
                 withContext(Dispatchers.Main) {
@@ -50,6 +54,8 @@ class KayitOlViewModel : ViewModel() {
             }
         }
     }
+
+
 }
 
 

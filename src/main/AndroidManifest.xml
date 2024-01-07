@@ -14,11 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Veri_Tabanı_Proje"
         tools:targetApi="31">
-        <activity
-            android:name=".View.MainActivity2"
-            android:exported="false"
-            android:label="@string/title_activity_main2"
-            android:theme="@style/Theme.Veri_Tabanı_Proje" />
+
         <activity
             android:name=".View.MainActivity"
             android:exported="true"

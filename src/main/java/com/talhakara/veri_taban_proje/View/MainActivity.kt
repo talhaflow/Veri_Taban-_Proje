@@ -1,5 +1,6 @@
 package com.talhakara.veri_taban_proje.View
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,13 +13,13 @@ import com.talhakara.veri_taban_proje.ui.theme.Veri_Tabanı_ProjeTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import java.sql.Connection
-import java.sql.DriverManager
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val context: Context = this
+
         setContent {
             Veri_Tabanı_ProjeTheme {
                 // A surface container using the 'background' color from the theme
@@ -26,7 +27,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SayfaGecis()
+
+                    SayfaGecis( context )
 
                 }
             }
@@ -35,12 +37,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SayfaGecis() {
+fun SayfaGecis(context: Context) {
     var navController = rememberNavController()
     var QuestionModel=QuestionModel("","","","","","")
 
-    NavHost(navController = navController, startDestination = "kayitSayfa") {
+    NavHost(navController = navController, startDestination = "loginSayfa") {
 
+        composable("calisma") {
+            Calisma( )
+        }
 
         composable("kayitSayfa") {
             kayitOl(navController = navController)
@@ -59,16 +64,14 @@ fun SayfaGecis() {
         }
 
         composable("result") {
-            Result(navController = navController)
+            Result()
         }
 
         composable("quiz") {
-            Quiz(navController = navController)
+            Quiz(navController = navController,context)
         }
 
-        composable("admin") {
-            AdminPanel(navController = navController)
-        }
+
 
 
     }
